@@ -45,6 +45,7 @@ class _CurrencyConverterMaterialPageState
   String _subtitle = "AUD to EUR";
   final String _dollarSymbol = '\$';
   final String _euroSymbol = '€';
+  final String _renminbiSymbol = '¥';
   String currencySymbol = "";
 
   @override
@@ -57,8 +58,7 @@ class _CurrencyConverterMaterialPageState
   Future<double> fetchConversion() async {
     final headers = {'Authorization': 'Bearer token'};
     final response = await http.get(
-        Uri.parse(
-            'https://api.freecurrencyapi.com/v1/latest?apikey=fca_live_cehfCllVEIIJuChaaQZtmNEhEYUE4OoT8Z2V0FvM'),
+        Uri.parse('https://api.freecurrencyapi.com/v1/latest'),
         headers: headers);
 
     CurrencyConvert responseFromJSON = currencyConvertFromJson(response.body);
@@ -129,6 +129,7 @@ class _CurrencyConverterMaterialPageState
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // DropdownButton(items: items, onChanged: onChanged),
                   Text(
                     _subtitle,
                     style: const TextStyle(
