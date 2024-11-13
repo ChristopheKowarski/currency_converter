@@ -27,19 +27,13 @@ class CurrencyConvert {
       };
 }
 
-// Future<double> result = Future<double>.delayed(
-//   const Duration(seconds: 2),
-//   () => 0.0,
-// );
-// Future<double> currentResult = Future<double>.delayed(
-//   const Duration(seconds: 2),
-//   () => 0.0,
-// );
-double result = 0.0;
+double convertResult = 0.0;
+double convertLocale = 0.0;
 double fromConversion = 0.0;
 double toConversion = 0.0;
 double currentConversion = 0.0;
 double amountConversion = 0.0;
+String? currentCountry = '';
 bool responded = false;
 bool thirdNeeded = false;
 final Future<String> responseBody = Future.value(fetchData());
@@ -92,7 +86,7 @@ Future<String> fetchData() async {
 }
 
 // Method to convert the 'from' currency into the 'to' currency
-void convert(String from, String to, double amount) async {
+void convert(String from, String to, double amount, String? current) async {
   String response = await responseBody;
   CurrencyConvert responseFromJSON = currencyConvertFromJson(response);
 
@@ -103,10 +97,11 @@ void convert(String from, String to, double amount) async {
 
   amountConversion = amount;
 
+  convertResult = amountConversion / fromConversion * toConversion;
+
   if (thirdNeeded) {
-    currentConversion = amountConversion;
-    result = currentConversion / fromConversion * toConversion;
-  } else {
-    result = amountConversion / fromConversion * toConversion;
+    currentCountry = current;
+    currentConversion = double.parse(responseFromJSON.data[current].toString());
+    convertLocale = amountConversion / fromConversion * currentConversion;
   }
 }

@@ -30,14 +30,17 @@ class _CurrencyConverterMaterialPageState
   final TextEditingController textEditingController = TextEditingController();
   late Future<double> futureCurrency;
   late Future<Map<String, dynamic>> weather;
+  String start = 'AUD';
+  String end = 'EUR';
+  String currencyName = conversion.currenciesSymbolsMap.keys.elementAt(8);
   String currencySymbol = conversion.currenciesSymbolsMap.values.elementAt(8);
   String dropdownValueFrom = conversion.currenciesSymbolsMap.keys.elementAt(0);
   String dropdownValueTo = conversion.currenciesSymbolsMap.keys.elementAt(8);
   String currentCurrencyName = "";
   String currentCurrencySymbol = "";
-  double fromConversion = 0.0;
-  double toConversion = 0.0;
-  double amountConversion = 0.0;
+  // double fromConversion = 0.0;
+  // double toConversion = 0.0;
+  // double amountConversion = 0.0;
   Map<String, String> currencySymbolMap = conversion.currenciesSymbolsMap;
   late Position? position;
   LocationPermission? permission;
@@ -50,18 +53,10 @@ class _CurrencyConverterMaterialPageState
   void initState() {
     super.initState();
     conversion.fetchData();
-    conversion.convert(dropdownValueFrom, dropdownValueTo, 0.0);
+    conversion.convert(
+        dropdownValueFrom, dropdownValueTo, 0.0, dropdownValueTo);
     getLocation();
     weather = getCurrentWeather();
-  }
-
-  String getCurrency(thisCurrencyCode) {
-    for (final thisCountry in Countries.values) {
-      if (thisCountry.alpha2 == thisCurrencyCode) {
-        return thisCountry.currencyCode;
-      }
-    }
-    return "";
   }
 
   void changedState() {
@@ -76,14 +71,23 @@ class _CurrencyConverterMaterialPageState
     currentCurrencySymbol =
         conversion.currenciesSymbolsMap[thisCurrency] as String;
 
-    setState(() {
-      conversion.convert(dropdownValueFrom, dropdownValueTo, amount);
-      if (dropdownValueFrom != thisCurrency &&
-          dropdownValueTo != thisCurrency) {
-        conversion.thirdNeeded = true;
-        conversion.convert(dropdownValueFrom, thisCurrency, amount);
+    // conversion.convert(
+    //     dropdownValueFrom, dropdownValueTo, amount, dropdownValueFrom);
+    if (dropdownValueFrom != thisCurrency && dropdownValueTo != thisCurrency) {
+      conversion.thirdNeeded = true;
+      conversion.convert(
+          dropdownValueFrom, dropdownValueTo, amount, thisCurrency);
+    }
+    setState(() {});
+  }
+
+  String getCurrency(thisCurrencyCode) {
+    for (final thisCountry in Countries.values) {
+      if (thisCountry.alpha2 == thisCurrencyCode) {
+        return thisCountry.currencyCode;
       }
-    });
+    }
+    return "";
   }
 
   void getLocation() async {
@@ -303,6 +307,13 @@ class _CurrencyConverterMaterialPageState
                                   ),
                               ],
                               onChanged: (newValue) {
+                                if (conversion.currentCountry ==
+                                        dropdownValueFrom ||
+                                    conversion.currentCountry ==
+                                        dropdownValueTo) {
+                                  conversion.thirdNeeded = false;
+                                }
+
                                 dropdownValueFrom = newValue.toString();
                                 changedState();
                               },
@@ -338,6 +349,13 @@ class _CurrencyConverterMaterialPageState
                                   ),
                               ],
                               onChanged: (newValue) {
+                                if (conversion.currentCountry ==
+                                        dropdownValueFrom ||
+                                    conversion.currentCountry ==
+                                        dropdownValueTo) {
+                                  conversion.thirdNeeded = false;
+                                }
+
                                 setState(() {
                                   dropdownValueTo = newValue.toString();
                                   changedState();
@@ -354,135 +372,25 @@ class _CurrencyConverterMaterialPageState
                 ),
                 Text(
                   // convertDefault(),
-                  '$currencySymbol${conversion.amountConversion.toStringAsFixed(2)}',
+                  '$currencySymbol${conversion.convertResult.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 48,
                     color: Color.fromARGB(255, 255, 255, 255),
                   ),
                 ),
-                // FutureBuilder<double>(
-                //   future: conversion.result,
-                //   builder:
-                //       (BuildContext context, AsyncSnapshot<double> snapshot) {
-                //     List<Widget> children;
-                //     if (snapshot.hasData) {
-                //       children = <Widget>[
-                //         Text(
-                //           '$currencySymbol${snapshot.data?.toStringAsFixed(2)}',
-                //           style: const TextStyle(
-                //             fontWeight: FontWeight.bold,
-                //             fontSize: 48,
-                //             color: Color.fromARGB(255, 255, 255, 255),
-                //           ),
-                //         ),
-                //         // Text(
-                //         //   "$currentCurrencySymbol${conversion.currentConversion.toStringAsFixed(2)}",
-                //         // ),
-                //       ];
-                //     } else if (snapshot.hasError) {
-                //       children = <Widget>[
-                //         const Icon(
-                //           Icons.error_outline,
-                //           color: Colors.red,
-                //           size: 60,
-                //         ),
-                //         Padding(
-                //           padding: const EdgeInsets.only(top: 16),
-                //           child: Text('Error: ${snapshot.error}'),
-                //         ),
-                //       ];
-                //     } else {
-                //       children = const <Widget>[
-                //         SizedBox(
-                //           width: 60,
-                //           height: 60,
-                //           child: CircularProgressIndicator(),
-                //         ),
-                //         Padding(
-                //           padding: EdgeInsets.only(top: 16),
-                //           child: Text('Fetching result...'),
-                //         ),
-                //       ];
-                //     }
-                //     return Center(
-                //       child: Column(
-                //         mainAxisAlignment: MainAxisAlignment.center,
-                //         children: children,
-                //       ),
-                //     );
-                //   },
-                // ),
-                Text(
-                  '$currentCurrencySymbol${conversion.currentConversion.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 48,
-                    color: Color.fromARGB(255, 255, 255, 255),
+                if (conversion.thirdNeeded &&
+                    conversion.currentCountry != dropdownValueFrom &&
+                    conversion.currentCountry != dropdownValueTo) ...[
+                  Text(
+                    '$currentCurrencySymbol${conversion.convertLocale.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 32,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                    ),
                   ),
-                ),
-                // FutureBuilder<double>(
-                //   future: conversion.currentResult,
-                //   builder:
-                //       (BuildContext context, AsyncSnapshot<double> snapshot) {
-                //     List<Widget> children;
-                //     currentCurrencyName = getCurrency(countryCode);
-                //     currentCurrencySymbol =
-                //         conversion.currenciesSymbolsMap[currentCurrencyName] ??
-                //             "AUD";
-                //     if (snapshot.hasData) {
-                //       if (currentCurrencyName.toString() != dropdownValueFrom &&
-                //           currentCurrencyName.toString() != dropdownValueTo) {
-                //         conversion.convert(
-                //           dropdownValueFrom,
-                //           currentCurrencyName,
-                //           amountConversion,
-                //         );
-                //       }
-                //       conversion.currentConversion = snapshot.data!.toDouble();
-                //       children = <Widget>[
-                //         Text(
-                //           '$currentCurrencySymbol${conversion.currentConversion.toStringAsFixed(2)}',
-                //           style: const TextStyle(
-                //             fontWeight: FontWeight.bold,
-                //             fontSize: 48,
-                //             color: Color.fromARGB(255, 255, 255, 255),
-                //           ),
-                //         ),
-                //       ];
-                //     } else if (snapshot.hasError) {
-                //       children = <Widget>[
-                //         const Icon(
-                //           Icons.error_outline,
-                //           color: Colors.red,
-                //           size: 60,
-                //         ),
-                //         Padding(
-                //           padding: const EdgeInsets.only(top: 16),
-                //           child: Text('Error: ${snapshot.error}'),
-                //         ),
-                //       ];
-                //     } else {
-                //       children = const <Widget>[
-                //         SizedBox(
-                //           width: 60,
-                //           height: 60,
-                //           child: CircularProgressIndicator(),
-                //         ),
-                //         Padding(
-                //           padding: EdgeInsets.only(top: 16),
-                //           child: Text('Fetching result...'),
-                //         ),
-                //       ];
-                //     }
-                //     return Center(
-                //       child: Column(
-                //         mainAxisAlignment: MainAxisAlignment.center,
-                //         children: children,
-                //       ),
-                //     );
-                //   },
-                // ),
+                ],
                 TextField(
                   controller: textEditingController,
                   style: const TextStyle(
