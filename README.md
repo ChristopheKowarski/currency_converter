@@ -1,20 +1,29 @@
-# currency_converter
-<<<<<<< HEAD
+# Travel Dash 0.2.0
 
-A new Flutter project.
+## A Travelling companion written in Flutter.
+
+Simple Flutter Currency Converter based on Rivaan Ranawat's UI, but with functional currency conversion,
+geo-location services and weather.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This is my first Flutter project. As I was following tutorials, I enjoyed Rivaan's currency converter approach and
+decided to make it a bit more useful. 
 
-A few resources to get you started if this is your first Flutter project:
+## Things added:
+- [FreeCurrencyAPI Services](https://freecurrencyapi.com/)
+- [Geo-Location Services](https://pub.dev/packages/geolocator) and
+- [Geo-Coding Services](https://pub.dev/packages/geocoding)
+- [OpenWeatherMap API Services](https://openweathermap.org/)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## To install (in a terminal):
+```
+- clone repository
+- cd into repository
+- type 'flutter build apk --split-per-abi' 
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
-Simple Flutter Currency Converter based on Rivaan Ranawat's UI, but with functional currency conversion
->>>>>>> 4d40a9efbc3e1a0591020b9ae2b3597cf4b985e6
+## Feedback:
+### Yes, please!
+### I hope you will find the idea useful. Any changes or suggestions welcome.
+---

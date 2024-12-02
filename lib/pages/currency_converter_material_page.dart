@@ -30,8 +30,6 @@ class _CurrencyConverterMaterialPageState
   final TextEditingController textEditingController = TextEditingController();
   late Future<double> futureCurrency;
   late Future<Map<String, dynamic>> weather;
-  String start = 'AUD';
-  String end = 'EUR';
   String currencyName = conversion.currenciesSymbolsMap.keys.elementAt(8);
   String currencySymbol = conversion.currenciesSymbolsMap.values.elementAt(8);
   String dropdownValueFrom = conversion.currenciesSymbolsMap.keys.elementAt(0);
@@ -52,11 +50,11 @@ class _CurrencyConverterMaterialPageState
   @override
   void initState() {
     super.initState();
+    getLocation();
+    weather = getCurrentWeather();
     conversion.fetchData();
     conversion.convert(
         dropdownValueFrom, dropdownValueTo, 0.0, dropdownValueTo);
-    getLocation();
-    weather = getCurrentWeather();
   }
 
   void changedState() {
@@ -71,13 +69,11 @@ class _CurrencyConverterMaterialPageState
     currentCurrencySymbol =
         conversion.currenciesSymbolsMap[thisCurrency] as String;
 
-    // conversion.convert(
-    //     dropdownValueFrom, dropdownValueTo, amount, dropdownValueFrom);
     if (dropdownValueFrom != thisCurrency && dropdownValueTo != thisCurrency) {
       conversion.thirdNeeded = true;
-      conversion.convert(
-          dropdownValueFrom, dropdownValueTo, amount, thisCurrency);
     }
+    conversion.convert(
+        dropdownValueFrom, dropdownValueTo, amount, thisCurrency);
     setState(() {});
   }
 
@@ -157,15 +153,25 @@ class _CurrencyConverterMaterialPageState
       borderRadius: BorderRadius.circular(50),
     );
 
+    String sunnypng = "lib/assets/images/Sunny-transparent.png";
+    String cloudypng = "lib/assets/images/Cloudy-transparent.png";
+    String rainypng = "lib/assets/images/Rainy-transparent.png";
+    String snowypng = "lib/assets/images/Snowy-transparent.png";
+    String stormypng = "lib/assets/images/Stormy-transparent.png";
+
     return Scaffold(
       backgroundColor: Colors.teal.shade700,
       appBar: AppBar(
         backgroundColor: Colors.teal.shade600,
         elevation: 0,
         title: const Text(
-          'Travel Dashboard',
+          'Travel Dash',
           style: TextStyle(
-            color: Color.fromARGB(255, 255, 255, 255),
+            fontFamily: "Great Vibes",
+            fontStyle: FontStyle.italic,
+            fontWeight: FontWeight.bold,
+            fontSize: 32,
+            color: Colors.lime,
           ),
         ),
         centerTitle: true,
@@ -217,6 +223,8 @@ class _CurrencyConverterMaterialPageState
                                   SizedBox(
                                     width: double.infinity,
                                     child: Card(
+                                      color: Colors.transparent,
+                                      borderOnForeground: true,
                                       elevation: 10,
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
@@ -226,8 +234,8 @@ class _CurrencyConverterMaterialPageState
                                         borderRadius: BorderRadius.circular(16),
                                         child: BackdropFilter(
                                           filter: ImageFilter.blur(
-                                            sigmaX: 10,
-                                            sigmaY: 10,
+                                            sigmaX: 50,
+                                            sigmaY: 50,
                                           ),
                                           child: Padding(
                                             padding: const EdgeInsets.all(16.0),
@@ -236,6 +244,7 @@ class _CurrencyConverterMaterialPageState
                                                 Text(
                                                   '$currentCity, $currentCountry',
                                                   style: const TextStyle(
+                                                    color: Colors.white,
                                                     fontSize: 32,
                                                     fontWeight: FontWeight.bold,
                                                   ),
@@ -243,25 +252,36 @@ class _CurrencyConverterMaterialPageState
                                                 Text(
                                                   '$currentTemp °C',
                                                   style: const TextStyle(
+                                                    color: Colors.white,
                                                     fontSize: 32,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
                                                 const SizedBox(height: 16),
-                                                Icon(
-                                                  currentSky == 'Sunny'
-                                                      ? Icons.sunny
+                                                Image(
+                                                  image: currentSky == 'Clear'
+                                                      ? AssetImage(sunnypng)
                                                       : currentSky == "Clouds"
-                                                          ? Icons.cloud
+                                                          ? AssetImage(
+                                                              cloudypng)
                                                           : currentSky == 'Rain'
-                                                              ? Icons.shower
-                                                              : Icons.air,
-                                                  size: 64,
+                                                              ? AssetImage(
+                                                                  rainypng)
+                                                              : currentSky ==
+                                                                      'Thunderstorm'
+                                                                  ? AssetImage(
+                                                                      stormypng)
+                                                                  : AssetImage(
+                                                                      snowypng),
+                                                  // size: 64,
+                                                  width: 128,
+                                                  height: 128,
                                                 ),
                                                 const SizedBox(height: 16),
                                                 Text(
                                                   currentSky,
                                                   style: const TextStyle(
+                                                      color: Colors.white,
                                                       fontSize: 20),
                                                 ),
                                               ],
@@ -276,10 +296,6 @@ class _CurrencyConverterMaterialPageState
                             );
                           },
                         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -288,15 +304,18 @@ class _CurrencyConverterMaterialPageState
                               value: dropdownValueFrom.isNotEmpty
                                   ? dropdownValueFrom
                                   : "",
-                              icon: const Icon(Icons.keyboard_arrow_down),
-                              dropdownColor: Colors.blueGrey[600],
+                              icon: const Icon(
+                                Icons.keyboard_arrow_down,
+                                color: Colors.white70,
+                              ),
+                              dropdownColor: Colors.teal[600],
                               items: [
-                                for (MapEntry<String, String> e
-                                    in conversion.currenciesSymbolsMap.entries)
+                                for (MapEntry<String, String> e in conversion
+                                    .currenciesCountriesMap.entries)
                                   DropdownMenuItem(
                                     value: e.key,
                                     child: Text(
-                                      e.key,
+                                      e.value,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 24,
@@ -330,15 +349,18 @@ class _CurrencyConverterMaterialPageState
                               value: dropdownValueTo.isNotEmpty
                                   ? dropdownValueTo
                                   : "",
-                              icon: const Icon(Icons.keyboard_arrow_down),
-                              dropdownColor: Colors.blueGrey[600],
+                              icon: const Icon(
+                                Icons.keyboard_arrow_down,
+                                color: Colors.white70,
+                              ),
+                              dropdownColor: Colors.teal[600],
                               items: [
-                                for (MapEntry<String, String> e
-                                    in conversion.currenciesSymbolsMap.entries)
+                                for (MapEntry<String, String> e in conversion
+                                    .currenciesCountriesMap.entries)
                                   DropdownMenuItem(
                                     value: e.key,
                                     child: Text(
-                                      e.key,
+                                      e.value,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 24,
@@ -372,7 +394,7 @@ class _CurrencyConverterMaterialPageState
                 ),
                 Text(
                   // convertDefault(),
-                  '$currencySymbol${conversion.convertResult.toStringAsFixed(2)}',
+                  '$dropdownValueTo $currencySymbol${conversion.convertResult.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 48,
@@ -383,7 +405,7 @@ class _CurrencyConverterMaterialPageState
                     conversion.currentCountry != dropdownValueFrom &&
                     conversion.currentCountry != dropdownValueTo) ...[
                   Text(
-                    '$currentCurrencySymbol${conversion.convertLocale.toStringAsFixed(2)}',
+                    '${conversion.currentCountry} $currentCurrencySymbol${conversion.convertLocale.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 32,
