@@ -20,6 +20,10 @@ decided to make it a bit more useful.
 ```
 - clone repository
 - cd into repository
+- typw 'flutter install' if using a physical device, 
+
+or to use adb.
+
 - type 'flutter build apk --split-per-abi' 
 ```
 
